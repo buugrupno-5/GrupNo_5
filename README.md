@@ -67,9 +67,10 @@ Program, döngüsel hesaplamalarında aşağıdaki prensipleri kullanır:
 
 Bu proje **"Pure Python" (Saf Python)** ile geliştirilmiştir. Pandas, NumPy veya Matplotlib gibi ağır dış bağımlılıklara ihtiyaç duymaz. Tüm grafikler ve arayüz yerleşik `tkinter` modülü ile sıfırdan çizilmiştir.
 1. Repoyu bilgisayarınıza klonlayın:
-   ```bash
-  git clone https://github.com/buugrupno-5/GrupNo_5.git
+    git clone https://github.com/buugrupno-5/GrupNo_5.git
 cd GrupNo_5
+   ```bash
+ 
 
 2.Sisteminizde Python 3.8 veya daha üstü bir sürümün kurulu olduğundan emin olun.
 3.Uygulamayı başlatın:
