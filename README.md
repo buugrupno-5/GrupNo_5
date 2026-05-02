@@ -32,7 +32,7 @@ Finansal hesaplamalarda sıkça karşılaşılan kuruşluk sapmaları (float hat
 Proje, yazılım mühendisliği standartlarına uygun olarak çeşitli mimari geliştirmeler içerir:
 
 * **Kusursuz Hassasiyet (Decimal Koruması):** Standart float tiplerinin neden olduğu kuruşluk sapmaları önlemek için `decimal` kütüphanesi kullanılmış ve hassasiyet 28 basamağa (`getcontext().prec = 28`) sabitlenmiştir.
-* **Dinamik Logaritmik Grafik Ölçeği:** Borcun kapanmayıp sürekli büyüdüğü "Iraksak (Divergent)" durumlarda grafiklerin okunabilirliğini korumak için sistem otomatik olarak lineer ölçekten logaritmik (Log) ölçeğe geçiş yapar.
+* **Dinamik Logaritmik Grafik Ölçeği:** Borcun kapanmayıp sürekli büyüdüğü "Iraksak " durumlarda grafiklerin okunabilirliğini korumak için sistem otomatik olarak lineer ölçekten logaritmik ölçeğe geçiş yapar.
 * **Inline Error Handling (Satır İçi Hata Yönetimi):** Kullanıcı girişleri (`tkinter` validate komutlarıyla) anlık olarak doğrulanır. Hatalı veri girişlerinde programın çökmesi engellenir ve dinamik uyarı etiketleri ile kullanıcıya yönlendirme yapılır.
 * **Karanlık ve Aydınlık Tema Desteği:** `TEMA_KARANLIK` ve `TEMA_AYDINLIK` sözlükleri ile arayüz renkleri anlık olarak değiştirilebilir, göz yormayan modern bir UI sunulur.
 * **Özel Takvim Bileşeni:** İşletim sisteminden bağımsız, baştan yazılmış özel bir takvim açılır penceresi içerir.
