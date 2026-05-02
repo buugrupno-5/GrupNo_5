@@ -12,7 +12,7 @@ Bu proje, Bursa Uludağ Üniversitesi Matematik Bölümü öğrencileri tarafın
 - [Modüller ve İşlevler](#-modüller-ve-işlevler)
 - [Matematiksel Altyapı](#-matematiksel-altyapı)
 - [Kurulum ve Çalıştırma](#-kurulum-ve-çalıştırma)
-- [Geliştirici](#-geliştirici)
+- [Geliştirici](#-Geliştirici)
 
 ---
 
