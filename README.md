@@ -75,6 +75,7 @@ Bu proje "Pure Python" (Saf Python) ile geliştirilmiştir. Pandas, NumPy veya M
  
 
 2.Sisteminizde Python 3.8 veya daha üstü bir sürümün kurulu olduğundan emin olun.
+
 3.Uygulamayı başlatın:
 
 python GrupNo_5.py
