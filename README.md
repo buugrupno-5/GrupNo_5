@@ -58,7 +58,7 @@ Proje, yazılım mühendisliği standartlarına uygun olarak çeşitli mimari ge
 Program, döngüsel hesaplamalarında aşağıdaki prensipleri kullanır:
 * **Günlük Faiz (Act/365):** Dönemlik tahakkuklar `(F * gün / 365)` formülüyle gerçek dünya bankacılık sistemine (Act/365 standardı) uygun hesaplanır.
 * **Dizi Karakteristikleri:** 
-  * *Yakınsak:* Borcun sıfırlandığı veya tasarrufun tükendiği senaryolar.
+  * *Yakınsak:* Borcun sıfırlandığı veya tasarrufun (birikimin) tükendiği senaryolar.
   * *Iraksak:* Faiz getirisinin/yükünün nakit akışını aştığı ve sonsuza giden seriler.
 
 ---
