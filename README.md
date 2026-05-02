@@ -75,7 +75,7 @@ Bu proje **"Pure Python" (Saf Python)** ile geliştirilmiştir. Pandas, NumPy ve
 
 3.Uygulamayı başlatın:
 
-python odev5guncellenmis.py
+python GrupNo_5.py
 
 
 
