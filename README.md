@@ -1,4 +1,4 @@
-# 📊 Tasarruf Planı ve Borç Azaltma Modeli Simülatörü (Grup_No5)
+# 📊 Tasarruf Planı ve Borç Azaltma Modeli
 
 Bu proje, hem günlük kullanıcıların kişisel finansal hedeflerini planlamasını sağlayan hem de finans profesyonellerinin ihtiyaç duyduğu yüksek hassasiyetli matematiksel modelleri barındıran gelişmiş bir finansal simülasyon uygulamasıdır. 
 
@@ -12,31 +12,33 @@ Python ve `tkinter` kullanılarak geliştirilen bu masaüstü uygulaması; birik
 
 ---
 
-## 🌟 Detaylı Özellikler ve Algoritmik Yetenekler
+## 🌟 Proje Özellikleri
 
 ### 🏦 1. Tasarruf Planı (Mevduat Simülasyonu)
 Mevduat hesaplamaları standart bir bileşik faiz formülünün çok ötesindedir. Gerçek dünya senaryolarını simüle eder:
 * **Hassas Günlük Tahakkuk ve Yasal Stopaj:** Faiz getirisi vade gününe göre (Örn: 32 gün) `Act/365` mantığıyla hesaplanır. Elde tutma süresine göre değişen yasal stopaj (vergi) kesinti oranları otomatik uygulanır.
-* **Enflasyon İskontosu (Reel Alım Gücü):** Uygulama, belirtilen enflasyon oranını kullanarak paranın zaman değerini (Time Value of Money) formülize eder. Nominal olarak büyüyen kasanın, enflasyon karşısındaki **reel alım gücünü** ikinci bir grafik eğrisi olarak çizer.
+* **Enflasyon Etkisi (Reel Alım Gücü):** Uygulama, belirtilen enflasyon oranını kullanarak paranın zaman değerini formülize eder. Nominal olarak büyüyen kasanın, enflasyon karşısındaki **reel alım gücünü** ikinci bir grafik eğrisi olarak çizer.
 * **Dinamik Dönem İçi Nakit Akışları (Vade Bozulması):** Kullanıcı, vade dolmadan para çekme işlemi tanımlayabilir. Algoritma bu durumu "vade bozulması" olarak algılar, o döneme ait birikmiş faizi yakar ve anaparadan düşerek simülasyonu yeni baştan yapılandırır.
-* **Yakınsak/Iraksak Seri Analizi:** Çekilen tutarların, tahakkuk eden faizi aşıp aşmadığı matematiksel olarak analiz edilir ve kullanıcının kasasının "sıfıra eriyen (yakınsak)" veya "sonsuza büyüyen (ıraksak)" olduğu raporlanır.
+* **Yakınsak/Iraksak Seri Analizi:** Çekilen tutarların, tahakkuk eden faizi aşıp aşmadığı matematiksel olarak analiz edilir ve kullanıcının kasasının "borcun sıfırlanması, paranın tükenmesi (yakınsak)" veya " borcun sonsuza büyümesi, paranın birikmesi (ıraksak)" olduğu raporlanır.
 
-### 📉 2. Borç Ekstresi (Kredi Amortisman Modeli)
+### 📉 2. Borç Ekstresi
 Kredi hesaplamaları yasal sınırlamalar ve esnek ödeme planları ile donatılmıştır:
 * **BDDK Limitasyon Motoru:** 
   * *İhtiyaç Kredisi:* Talep edilen tutara göre yasal maksimum vade (12, 24 veya 36 ay) kısıtlamalarını otomatik uygular.
   * *Taşıt ve Konut Kredisi:* Girilen teminat (fatura/ekspertiz) değerine göre yasal **LTV (Loan-to-Value)** oranlarını hesaplar. Yasal olarak çekilebilecek maksimum kredi tutarını ve vadeyi kilitler.
 * **Erken / Ara Ödeme Optimizasyonu:** Kullanıcı istediği aya özel ekstra ara ödeme tanımlayabilir.
-* **Yeniden Yapılandırma Algoritması:** Ara ödeme yapıldığında, kullanıcıya iki seçenek sunulur: Vadeyi erkene çekmek (taksit sabit kalır, borç erken biter) veya anüite formülünü kalan anapara üzerinden yeniden hesaplayarak aylık taksitleri düşürmek (vade sabit kalır).
+* **Yeniden Yapılandırma Algoritması:** Ara ödeme yapıldığında, kullanıcıya iki seçenek sunulur:
+  1. Vadeyi erkene çekmek (taksit sabit kalır, borç erken biter)
+  2. Sabit Taksit formülünü kalan anapara üzerinden yeniden hesaplayarak aylık taksitleri düşürmek (vade sabit kalır).
 
 ### 💻 3. Arayüz (UI) ve Raporlama Altyapısı
-* **Etkileşimli ve Logaritmik Grafikler:** Native Canvas üzerine inşa edilen grafik motoru, veriler arasında çok büyük uçurumlar olduğunda (örneğin patlayarak büyüyen bir borç) eksenleri otomatik olarak **Logaritmik Ölçeğe (Log-Scale)** çevirir. 
-* **Custom Tkinter Bileşenleri:** Özel olarak yazılmış Scrollable Frame'ler, üzerine gelince detay gösteren (Hover) Tooltip'ler ve sayı girerken anlık para birimi formatına (1.000.000,00 ₺) dönüşen akıllı TextBox'lar (CustomEntry).
-* **Profesyonel Dışa Aktarım (Zebra Desenli Raporlar):** Oluşturulan ekstreler; veri analizi için **CSV**, profesyonel sunumlar için `openpyxl` ile renkli/zebra desenli **XLSX (Excel)** ve `reportlab` kütüphanesi ile **PDF** formatlarında dışa aktarılabilir.
+* **Etkileşimli ve Logaritmik Grafikler:** Native Canvas üzerine inşa edilen grafik motoru, veriler arasında çok büyük uçurumlar olduğunda (örneğin çok hızlı ve bir anda büyüyen bir borç) eksenleri otomatik olarak **Logaritmik Ölçeğe (Log-Scale)** çevirir. 
+* **Custom Tkinter Bileşenleri:** Özel olarak yazılmış Scrollable Frame'ler, üzerine gelince detay gösteren Tooltip'ler ve sayı girerken anlık para birimi formatına (1.000.000,00 ₺) dönüşen akıllı TextBox'lar.
+* **Profesyonel Dışa Aktarım:** Oluşturulan ekstreler; veri analizi için **CSV**, profesyonel sunumlar için `openpyxl` ile renkli/zebra desenli **XLSX (Excel)** ve `reportlab` kütüphanesi ile **PDF** formatlarında dışa aktarılabilir.
 
 ---
 
-## 🛠️ Kurulum Adımları (Hayatidir)
+## 🛠️ Kurulum Adımları
 
 Projeyi yerel ortamınızda, tüm kütüphane bağımlılıkları çözülmüş şekilde çalıştırmak için aşağıdaki adımları sırasıyla uygulayınız.
 
@@ -47,11 +49,11 @@ Kontrol etmek için terminalinize (macOS/Linux) veya Komut İstemi'ne (Windows) 
 python --version
 ```
 
-### 2. Projeyi Klonlama (Grup_No5)
+### 2. Projeyi Klonlama (GrupNo_5)
 Projeyi GitHub üzerinden bilgisayarınıza indirin ve proje dizinine gidin:
 ```bash
-git clone [https://github.com/KULLANICI_ADINIZ/Grup_No5.git](https://github.com/KULLANICI_ADINIZ/Grup_No5.git)
-cd Grup_No5
+git clone [https://github.com/buugrupno-5/GrupNo_5.git](https://github.com/buugrupno-5/GrupNo_5.git)
+cd GrupNo_5
 ```
 *(Alternatif olarak yeşil "Code" butonuna tıklayıp "Download ZIP" seçeneğiyle indirebilir ve dosyaları arşivden çıkarabilirsiniz.)*
 
@@ -70,7 +72,7 @@ pip install openpyxl reportlab
 Kurulum tamamlandıktan sonra uygulamayı başlatmak için proje dizinindeyken aşağıdaki komutu çalıştırın:
 
 ```bash
-python "Grup_5_Finalize (1).py"
+python "GrupNo_5.py"
 ```
 
 1. **Arayüz Gezinimi:** Üst kısımdaki sekmeleri kullanarak "Tasarruf Planı" veya "Borç Ekstresi" modüllerine geçiş yapabilirsiniz.
@@ -81,4 +83,4 @@ python "Grup_5_Finalize (1).py"
 
 ---
 
-> **Geliştirici Notu:** Bu proje, Grup No:5 tarafından akademik proje isterlerine ve gerçek hayat senaryolarına uygun olarak geliştirilmiştir. Kod içerisinde yer alan `getcontext().prec = 28` ayarı sayesinde finansal kurumlarda kullanılan hesaplama standartlarına tam uyum sağlanmıştır.
+> **Geliştirici Notu:** Bu proje, GrupNo_5 tarafından akademik proje kriterlerine ve gerçek hayat senaryolarına uygun olarak geliştirilmiştir. Kod içerisinde yer alan `getcontext().prec = 28` ayarı sayesinde finansal kurumlarda kullanılan hesaplama standartlarına tam uyum sağlanmıştır.
