@@ -1,14 +1,13 @@
 """
 ============================================================
-    Authors: 082040014 Meltem Nur Yılmaz
-             082140019 Öznur Çağdaş
-             082240067 Ahmet İşbilen
-    Date: 04.06.2026
-    Version: 3.14
-    
-****    ****    ****    ****    ****    ****    ****
-
-  Proje 8: Tasarruf Planı ve Borç Azaltma Modeli
+  Authors: 082040014 Meltem Nur Yılmaz
+           082140019 Öznur Çağdaş
+           082240067 Ahmet İşbilen
+  Date: 05.06.2026
+  Version: 3.14
+  
+  Proje: Tasarruf Planı ve Borç Azaltma Modeli
+  
   Gerçek Takvim, Act/365, Kesin Hassasiyet (Decimal)
   GÜNCEL: Dinamik Çözünürlük/Hizalama, Otomatik Tam Ekran,
   Bakiye Tüketim Mantığı, Üst Seviye Uyarı Sistemi,
@@ -16,7 +15,6 @@
   Akıllı Satır Gruplama, Kullanıcı İşlemi Görünürlüğü,
   Borç Yeniden Yapılandırma (Ara Ödemeye Bağlı),
   Akıllı Sekme Panel Kontrolü.
-
 ============================================================
 """
 
@@ -641,7 +639,7 @@ def ciz_grafik(canvas: tk.Canvas, veriler_nom: list, veriler_reel: list, renk_no
 class UygulamaGUI:
     def __init__(self, kok: tk.Tk):
         self.kok = kok
-        kok.title("Tasarruf Planı ve Borç Azaltma Modeli: Finansal Projeksiyon")
+        kok.title("Tasarruf Planı ve Borç Azaltma Modeli: Dizilerin Yakınsaklığı")
 
         kok.update_idletasks()
         ekr_w = kok.winfo_screenwidth()
@@ -1186,7 +1184,7 @@ class UygulamaGUI:
         r = self.renkler
         baslik_frame = tk.Frame(self.ana_cerceve, bg=r["DARK_BG"])
         baslik_frame.pack(fill="x", padx=24, pady=(12, 0))
-        tk.Label(baslik_frame, text="Tasarruf Planı ve Borç Azaltma Modeli: Finansal Projeksiyon", bg=r["DARK_BG"],
+        tk.Label(baslik_frame, text="Tasarruf Planı ve Borç Azaltma Modeli: Dizilerin Yakınsaklığı", bg=r["DARK_BG"],
                  fg=r["ACCENT_BLUE"], font=("Courier New", 15, "bold")).pack(side="left")
         tk.Button(baslik_frame, text="☀️/🌙 Temayı Değiştir", bg=r["PANEL_BG"], fg=r["TEXT_PRIMARY"],
                   font=("Courier New", 10, "bold"), relief="solid", bd=1, cursor="hand2",
