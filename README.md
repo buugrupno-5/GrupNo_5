@@ -55,7 +55,6 @@ Projeyi GitHub üzerinden bilgisayarınıza indirin ve proje dizinine gidin:
 git clone [https://github.com/buugrupno-5/GrupNo_5.git](https://github.com/buugrupno-5/GrupNo_5.git)
 cd GrupNo_5
 ```
-*(Alternatif olarak yeşil "Code" butonuna tıklayıp "Download ZIP" seçeneğiyle indirebilir ve dosyaları arşivden çıkarabilirsiniz.)*
 
 ### 3. Gerekli Kütüphanelerin Yüklenmesi
 Simülasyonun çekirdek hesaplama motoru Python standart kütüphaneleriyle çalışır, ancak **Excel ve PDF dışa aktarma (raporlama) özelliklerinin çalışabilmesi için** aşağıdaki paketlerin kurulması **zorunludur**.
