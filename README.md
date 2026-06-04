@@ -1,4 +1,4 @@
-# 📊 Tasarruf Planı ve Borç Azaltma Modeli: Dizilerin Yakınsaklığı
+# 📊 Tasarruf Planı ve Borç Azaltma Modeli
 
 Bu proje, hem günlük kullanıcıların kişisel finansal hedeflerini planlamasını sağlayan hem de finans profesyonellerinin ihtiyaç duyduğu yüksek hassasiyetli matematiksel modelleri barındıran gelişmiş bir finansal simülasyon uygulamasıdır. 
 
