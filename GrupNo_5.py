@@ -7,7 +7,6 @@
   Version: 3.14
   
   Proje: Tasarruf Planı ve Borç Azaltma Modeli
-  
   Gerçek Takvim, Act/365, Kesin Hassasiyet (Decimal)
   GÜNCEL: Dinamik Çözünürlük/Hizalama, Otomatik Tam Ekran,
   Bakiye Tüketim Mantığı, Üst Seviye Uyarı Sistemi,
@@ -196,7 +195,7 @@ def hesapla_mevduat(baslangic, yillik_faiz, aylik_yatirim, donem_sayisi, stopaj_
     gun = Decimal(str(vade_gun))
     enf_orani = float(enflasyon) / 100.0
     r_donem = F * gun / Decimal('365')
-    p_min = para_format(A0 * r_donem * SC)
+    p_min = para_format(para_format(A0 * r_donem) * SC)
 
     bakiyeler_nominal = [float(A0)]
     bakiyeler_reel = [float(A0)]
@@ -287,16 +286,27 @@ def hesapla_mevduat(baslangic, yillik_faiz, aylik_yatirim, donem_sayisi, stopaj_
              "bakiye": bakiye, "reel_bakiye": para_format(reel_bakiye), "vade_bozuldu": donem_vade_bozuldu,
              "kullanici_islemi": kullanici_islemi_var})
 
+    # Son durumu guncel bakiyeye gore hesapla
+    # Karşılaştırma döngüdeki gerçek net faiz hesabıyla AYNI yapılmalı (çift yuvarlama)
+    _son_bakiye = bakiye if bakiye > Decimal('0') else A0
+    _son_net_faiz = para_format(para_format(_son_bakiye * r_donem) * SC)
+    # p_min de aynı yöntemle güncelle (başlangıçta A0 ile hesaplanmıştı, son bakiyeyle yenile)
+    p_min_son = _son_net_faiz
+
     if bakiye <= Decimal('0'):
-        karakteristik = "YAKINSAK\n(Sıfıra Eriyip Bitti)"
+        karakteristik = "YAKINSAK\n(S\u0131f\u0131ra Eriyip Bitti)"
     elif tek_seferlik:
-        karakteristik = "IRAKSAK\n(Tek Seferlik Yatırım, Faiz Birikir)"
-    elif duzenli_yatirim >= Decimal('0'):
-        karakteristik = "IRAKSAK\n(Sürekli Büyür)"
-    elif abs(duzenli_yatirim) > para_format(A0 * r_donem * SC):
+        karakteristik = "IRAKSAK\n(Tek Seferlik Yat\u0131r\u0131m, Faiz Birikir)"
+    elif duzenli_yatirim > Decimal('0'):
+        karakteristik = "IRAKSAK\n(S\u00fcrekli B\u00fcy\u00fcr)"
+    elif duzenli_yatirim == Decimal('0'):
+        karakteristik = "IRAKSAK\n(Faiz Birikir, Anapara Sabit Kal\u0131r)"
+    elif abs(duzenli_yatirim) > _son_net_faiz:
         karakteristik = "YAKINSAK\n(Zamanla Eriyip Biter)"
+    elif abs(duzenli_yatirim) == _son_net_faiz:
+        karakteristik = "SAB\u0130T\n(\u00c7ekim Faize E\u015fit, Bakiye De\u011fi\u015fmiyor)"
     else:
-        karakteristik = "IRAKSAK\n(Faiz Çekimi Karşılıyor, Para Bitmez)"
+        karakteristik = "IRAKSAK\n(Faiz \u00c7ekimi Kar\u015f\u0131l\u0131yor, Para Bitmez)"
 
     return {"nominal": bakiyeler_nominal, "reel": bakiyeler_reel, "p_min": p_min, "bitis_tarihi": aktif_tarih,
             "vade_bozuldu": vade_bozuldu, "vade_bozulan_donemler": vade_bozulan_donemler,
@@ -330,7 +340,9 @@ def hesapla_borc(baslangic, yillik_faiz, aylik_odeme, vergi_orani, baslangic_tar
 
     if P <= p_min and not ara_yeterli and hedef_vade is None:
         iraksar = True
-        dongu_limiti = 24
+        # Ara ödeme varsa borç ilerleyen dönemlerde kapanabilir — limiti yüksek tut
+        # Ara ödeme yoksa gerçekten ıraksak: 24 ay simüle et
+        dongu_limiti = 600 if ara_odemeler else 24
         if P < p_min:
             iraksar_tip = "buyuyor"
         else:
@@ -411,7 +423,43 @@ def hesapla_borc(baslangic, yillik_faiz, aylik_odeme, vergi_orani, baslangic_tar
 
         n += 1
 
-    karakteristik = "IRAKSAK\n(Borç Asla Kapanmaz, Büyür)" if iraksar else "YAKINSAK\n(Limit Sınırında Borç Sıfırlanır)"
+    # Loop sonrası gerçek durumu belirle
+    # Borç sıfırlandıysa kesinlikle yakınsak; hâlâ devam ediyorsa son P ve borc'a göre değerlendir
+    if borc <= Decimal('0'):
+        iraksar = False
+        karakteristik = "YAKINSAK\n(Limit S\u0131n\u0131r\u0131nda Bor\u00e7 S\u0131f\u0131rland\u0131)"
+    elif hedef_vade is not None:
+        # Hedef vade doldu, borç kapanmadı — durum giriş koşullarına göre
+        _son_p_min = para_format(borc * r_aylik)
+        if P < _son_p_min:
+            iraksar = True
+            karakteristik = "IRAKSAK\n(Bor\u00e7 Asla Kapanmaz, B\u00fcy\u00fcr)"
+        elif P == _son_p_min:
+            iraksar = True
+            iraksar_tip = "sabit"
+            karakteristik = "SAB\u0130T\n(Yaln\u0131zca Faiz \u00d6deniyor, Anapara Eksilmiyor)"
+        else:
+            iraksar = False
+            karakteristik = "YAKINSAK\n(Limit S\u0131n\u0131r\u0131nda Bor\u00e7 S\u0131f\u0131rlan\u0131r)"
+    else:
+        # Limit doldu (600 ay) ama borç kapanmadı — gerçekten iraksar
+        _son_p_min = para_format(borc * r_aylik)
+        if P < _son_p_min:
+            iraksar = True
+            karakteristik = "IRAKSAK\n(Bor\u00e7 Asla Kapanmaz, B\u00fcy\u00fcr)"
+        elif P == _son_p_min:
+            iraksar = True
+            iraksar_tip = "sabit"
+            karakteristik = "SAB\u0130T\n(Yaln\u0131zca Faiz \u00d6deniyor, Anapara Eksilmiyor)"
+        else:
+            # P > p_min ama 600 ayda bitmedi — teorik olarak imkânsız, güvenlik için
+            iraksar = False
+            karakteristik = "YAKINSAK\n(Limit S\u0131n\u0131r\u0131nda Bor\u00e7 S\u0131f\u0131rlan\u0131r)"
+
+    # Iraksar kaldıysa tablo gösterimi 24 satırla sınırla
+    if iraksar:
+        ekstre = ekstre[:24]
+        bakiyeler_nom = bakiyeler_nom[:25]
     return {"nominal": bakiyeler_nom, "iraksar": iraksar, "iraksar_tip": iraksar_tip if iraksar else "kapaniyor",
             "kapanma_ay": n, "p_min": p_min,
             "toplam_odenen_nom": toplam_odenen_nom, "ekstre": ekstre, "bitis_tarihi": aktif_tarih,
@@ -516,7 +564,7 @@ def ciz_grafik(canvas: tk.Canvas, veriler_nom: list, veriler_reel: list, renk_no
     canvas.delete("all")
     W = canvas.winfo_width() if canvas.winfo_width() > 50 else 750
     H = canvas.winfo_height() if canvas.winfo_height() > 50 else 300
-    pad_left, pad_right, pad_top, pad_bottom = 85, 30, 50, 60
+    pad_left, pad_right, pad_top, pad_bottom = 135, 30, 50, 60
     iw, ih = W - pad_left - pad_right, H - pad_top - pad_bottom
     canvas.configure(bg=r["CHART_BG"])
     canvas.create_rectangle(pad_left, pad_top, pad_left + iw, pad_top + ih, fill=r["PANEL_BG"], outline=r["BORDER"])
@@ -1018,7 +1066,7 @@ class UygulamaGUI:
 
         W = canvas.winfo_width() if canvas.winfo_width() > 50 else self.kok.winfo_width() // 2
         H = canvas.winfo_height() if canvas.winfo_height() > 50 else 300
-        pad_left, pad_right, pad_top, pad_bottom = 85, 30, 50, 60
+        pad_left, pad_right, pad_top, pad_bottom = 135, 30, 50, 60
         iw, ih = W - pad_left - pad_right, H - pad_top - pad_bottom
         canvas.configure(bg=r["CHART_BG"])
         canvas.create_rectangle(pad_left, pad_top, pad_left + iw, pad_top + ih, fill=r["PANEL_BG"], outline=r["BORDER"])
@@ -1184,7 +1232,7 @@ class UygulamaGUI:
         r = self.renkler
         baslik_frame = tk.Frame(self.ana_cerceve, bg=r["DARK_BG"])
         baslik_frame.pack(fill="x", padx=24, pady=(12, 0))
-        tk.Label(baslik_frame, text="Tasarruf Planı ve Borç Azaltma Modeli: Dizilerin Yakınsaklığı", bg=r["DARK_BG"],
+        tk.Label(baslik_frame, text="Tasarruf Planı ve Borç Azaltma Modeli", bg=r["DARK_BG"],
                  fg=r["ACCENT_BLUE"], font=("Courier New", 15, "bold")).pack(side="left")
         tk.Button(baslik_frame, text="☀️/🌙 Temayı Değiştir", bg=r["PANEL_BG"], fg=r["TEXT_PRIMARY"],
                   font=("Courier New", 10, "bold"), relief="solid", bd=1, cursor="hand2",
@@ -1585,8 +1633,11 @@ class UygulamaGUI:
         tablo_frame_m.grid_columnconfigure(0, weight=1)
 
         self.m_tablo_not_lbl = tk.Label(tablo_frame_m, text="", bg=r["ENTRY_BG"], fg=r["ACCENT_ORANGE"],
-                                        font=("Courier New", 9, "italic"), justify="left", wraplength=600, anchor="w")
+                                        font=("Courier New", 9, "italic"), justify="left", anchor="w")
         self.m_tablo_not_lbl.grid(row=0, column=0, columnspan=2, sticky="ew", padx=4, pady=(2, 0))
+
+        # Ekran boyutu değiştikçe etiketin maksimum genişliğini otomatik olarak günceller
+        self.m_tablo_not_lbl.bind("<Configure>", lambda e: e.widget.config(wraplength=max(50, e.width - 20)))
 
         self.tree_m = ttk.Treeview(tablo_frame_m, columns=("donem", "bas_tarih", "bit_tarih", "faiz", "islem", "bakiye",
                                                            "reel_bakiye"),
@@ -2319,9 +2370,13 @@ class UygulamaGUI:
         tk.Label(f, text="Tutar (₺):", bg=r["PANEL_BG"], fg=r["TEXT_PRIMARY"], font=("Courier New", 10)).pack(
             side="left")
 
-        CustomEntry(f, is_dark=self.karanlik_mod, textvariable=t_var, width=10,
+        vcmd_dec_poz = (self.kok.register(lambda P: self._genel_dogrulama(P, "ondalik_pozitif")), '%P')
+        t_entry = CustomEntry(f, is_dark=self.karanlik_mod, textvariable=t_var, width=10,
                     bg=r.get("TEXTBOX_BG", r["ENTRY_BG"]), fg=r.get("TEXTBOX_FG", r["TEXT_PRIMARY"]),
-                    insertbackground=r.get("TEXTBOX_FG", r["TEXT_PRIMARY"])).pack(side="left", padx=(2, 6))
+                    insertbackground=r.get("TEXTBOX_FG", r["TEXT_PRIMARY"]),
+                    validate="key", validatecommand=vcmd_dec_poz)
+        t_entry.pack(side="left", padx=(2, 6))
+        t_entry.bind('<KeyPress>', self._virgul_nokta_cevir, add='+')
 
         tk.Button(f, text="✕", bg=r["ACCENT_RED"], fg="#FFFFFF", relief="flat", font=("Courier New", 9, "bold"),
                   cursor="hand2",
@@ -2503,6 +2558,19 @@ class UygulamaGUI:
         self.m_uyari_lbl.config(text="")
         lbl = self.m_uyari_lbl
 
+        # ─── YENİ EKLENEN KISIM: Eski sonuçları önceden temizle ───
+        if not sessiz:
+            self.tree_m.delete(*self.tree_m.get_children())
+            self._bosh_grafik_ciz(self.m_canvas, self.renkler, "Tasarruf Eğrisi")
+            for w in self.m_sonuc_grid_frame.winfo_children(): w.destroy()
+            self.m_hesaplandi = False
+            if hasattr(self, 'btn_indir_csv_m'):
+                self.btn_indir_csv_m.grid_remove()
+                self.btn_frame_m.grid_columnconfigure(0, weight=4)
+                self.btn_frame_m.grid_columnconfigure(1, weight=1)
+                self.btn_frame_m.grid_columnconfigure(2, weight=0)
+        # ─────────────────────────────────────────────────────────
+
         for w in self.m_sonuc_grid_frame.winfo_children(): w.destroy()
         self.tree_m.delete(*self.tree_m.get_children())
         if hasattr(self, 'm_tablo_not_lbl'): self.m_tablo_not_lbl.config(text="")
@@ -2547,7 +2615,7 @@ class UygulamaGUI:
             return False
 
         if self.m_duzenli_islem_var.get():
-            yatirim_str = self.m_yatirim.get().replace('.', '').replace(',', '.')
+            yatirim_str = self.m_yatirim.get().replace(',', '.')
             if yatirim_str in ["", ".", "-", "-."]: yatirim_str = "0"
             try:
                 P = float(yatirim_str)
@@ -2669,7 +2737,13 @@ class UygulamaGUI:
         reel = sonuc["reel"]
         p_min = sonuc["p_min"]
         bitis = sonuc["bitis_tarihi"].strftime("%d.%m.%Y")
-        renk = r["ACCENT_GREEN"] if nom[-1] > 0 else r["ACCENT_RED"]
+        kar = sonuc["karakteristik"]
+        if "YAKINSAK" in kar:
+            renk = r["ACCENT_RED"]
+        elif "SABİT" in kar:
+            renk = r["ACCENT_BLUE"]
+        else:
+            renk = r["ACCENT_GREEN"]
 
         t_brut = sonuc['toplam_brut_faiz']
         t_stop = sonuc['toplam_stopaj_kesinti']
@@ -2738,6 +2812,9 @@ class UygulamaGUI:
                 vade_bozulanlar) > 4 else ", ".join(map(str, vade_bozulanlar))
             uyari_metinler.append(
                 f"❌ VADE BOZULDU: {donemler_str}. dönemde yapılan para çekiminden dolayı\n₺{sonuc['yanan_faiz']:,.2f} faiz YANDI! (Hesaplamalarda yanan faizler düşülmüştür)")
+        elif "Sıfıra Eriyip Bitti" in sonuc["karakteristik"]:
+            uyari_metinler.append(
+                "⚠️ DİKKAT: Paranız belirlenen dönem içinde tamamen tükendi!")
         elif "YAKINSAK" in sonuc["karakteristik"] and not sonuc.get("bakiye_asimi_var"):
             uyari_metinler.append(
                 "⚠️ DİKKAT: Paranız zamanla eriyip tükenecek!\nÇekim miktarınız faiz getirinizi aşıyor.")
@@ -2788,8 +2865,7 @@ class UygulamaGUI:
 
         if erken_cekim_var and sonuc["vade_bozuldu"] and hasattr(self, 'm_tablo_not_lbl'):
             self.m_tablo_not_lbl.config(
-                text="ℹ️  Turuncu renkle gösterilen satır, vadenin bozulduğu dönemdir. "
-                     "Bir sonraki satır mevduat bozulduktan sonraki yeni dönemi gösterir.")
+                text="ℹ️  Turuncu renkle gösterilen satır, vadenin bozulduğu dönemdir. Bir sonraki satır mevduat bozulduktan sonraki yeni dönemi gösterir.")
         elif hasattr(self, 'm_tablo_not_lbl'):
             self.m_tablo_not_lbl.config(text="")
 
@@ -2812,6 +2888,20 @@ class UygulamaGUI:
         r = self.renkler
         self.b_uyari_lbl.config(text="")
         lbl = self.b_uyari_lbl
+
+        # ─── YENİ EKLENEN KISIM: Eski sonuçları önceden temizle ───
+        if not sessiz:
+            self.tree.delete(*self.tree.get_children())
+            self._bosh_grafik_ciz(self.b_canvas, self.renkler, "Borç Eğrisi")
+            for w in self.b_sonuc_grid_frame.winfo_children(): w.destroy()
+            self.b_hesaplandi = False
+            if hasattr(self, 'btn_indir_csv'):
+                self.btn_indir_csv.grid_remove()
+                self.btn_frame_b.grid_columnconfigure(0, weight=4)
+                self.btn_frame_b.grid_columnconfigure(1, weight=1)
+                self.btn_frame_b.grid_columnconfigure(2, weight=0)
+        # ─────────────────────────────────────────────────────────
+
         maks_kredi, maks_vade, mesaj, renk = self._bddk_sinirlari_hesapla()
         tip = self.b_kredi_tipi.get()
 
@@ -2892,7 +2982,7 @@ class UygulamaGUI:
         ara = {}
         for dv, tv in self.b_ara_odemeler_liste:
             d_val = dv.get().strip()
-            t_val = tv.get().replace('.', '').replace(',', '.').strip()
+            t_val = tv.get().replace(',', '.').strip()
             if d_val:
                 if not t_val or t_val in [".", "-"]: t_val = "0"
                 ara[int(d_val)] = Decimal(t_val)
@@ -2909,8 +2999,10 @@ class UygulamaGUI:
 
         if sonuc["iraksar"]:
             renk = r["ACCENT_RED"]
-            durum_aciklama = ("Yalnızca faiz ödeniyor,\nanapara eksilmiyor." if sonuc.get('iraksar_tip') == "sabit"
-                              else "Ödeme faizi karşılamıyor,\nborç büyümeye devam eder.")
+            if "SABİT" in sonuc["karakteristik"]:
+                durum_aciklama = "Yalnızca faiz ödeniyor,\nanapara eksilmiyor."
+            else:
+                durum_aciklama = "Ödeme faizi karşılamıyor,\nborç büyümeye devam eder."
 
             veri_listesi = [
                 ("Dizi Durumu:", sonuc['karakteristik']),
