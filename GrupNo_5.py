@@ -5,15 +5,8 @@
            082240067 Ahmet İşbilen
   Date: 05.06.2026
   Version: 3.14
-  
   Proje: Tasarruf Planı ve Borç Azaltma Modeli
   Gerçek Takvim, Act/365, Kesin Hassasiyet (Decimal)
-  GÜNCEL: Dinamik Çözünürlük/Hizalama, Otomatik Tam Ekran,
-  Bakiye Tüketim Mantığı, Üst Seviye Uyarı Sistemi,
-  Dinamik Metin Kaydırma, Düzenlenebilir Çekim Tarihi,
-  Akıllı Satır Gruplama, Kullanıcı İşlemi Görünürlüğü,
-  Borç Yeniden Yapılandırma (Ara Ödemeye Bağlı),
-  Akıllı Sekme Panel Kontrolü.
 ============================================================
 """
 
@@ -3013,7 +3006,7 @@ class UygulamaGUI:
                 ("Toplam Ödenen:", f"₺{sonuc['toplam_odenen_nom']:,.2f}")
             ]
 
-            uyari_metin = "⚠️ Aşağıda borcun 2 yılda (24 ay) nasıl büyüdüğünün logaritmik simülasyonu gösterilmiştir."
+            uyari_metin = "⚠️ Aşağıda borcun 2 yılda (24 ay) nasıl değiştiğinin logaritmik simülasyonu gösterilmiştir."
             self._dinamik_yazdir(self.b_uyari_lbl, uyari_metin, base_size=11, is_bold=True)
             self.b_uyari_lbl.config(fg=r["ACCENT_RED"])
         else:
